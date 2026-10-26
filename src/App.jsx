@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import TaskItem from "./Components/TaskItem";
@@ -25,7 +25,33 @@ const initialTodos = [
 ];
 
 function App() {
-  const [todos, setTodos] = useState(initialTodos);
+  const [todos, setTodos] = useState(() => {
+    try {
+      const savedTodos = localStorage.getItem("taskflow-todos");
+
+      if (savedTodos !== null) {
+        const parsedTodos = JSON.parse(savedTodos);
+
+        if (
+          Array.isArray(parsedTodos) &&
+          parsedTodos.every(
+            (todo) =>
+              todo &&
+              (typeof todo.id === "string" || typeof todo.id === "number") &&
+              typeof todo.text === "string" &&
+              typeof todo.completed === "boolean" &&
+              ["Low", "Medium", "High"].includes(todo.priority),
+          )
+        ) {
+          return parsedTodos;
+        }
+      }
+    } catch (error) {
+      console.error("Could not load saved tasks:", error);
+    }
+
+    return initialTodos;
+  });
   const [input, setInput] = useState("");
   const [priority, setPriority] = useState("Medium");
 
@@ -36,6 +62,13 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("All");
 
+  useEffect(() => {
+    try {
+      localStorage.setItem("taskflow-todos", JSON.stringify(todos));
+    } catch (error) {
+      console.error("Could not save tasks:", error);
+    }
+  }, [todos]);
   // Add a new task
   const addTodo = () => {
     if (!input.trim()) return;
