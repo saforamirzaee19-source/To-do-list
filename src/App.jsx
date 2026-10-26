@@ -26,6 +26,10 @@ function App() {
 
   const incompleteCount = todos.filter((t) => !t.completed).length;
 
+  const deleteTodo = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-900">
       <Header />
@@ -58,7 +62,12 @@ function App() {
 
           <ul className="space-y-2">
             {todos.map((todo) => (
-              <TaskItem key={todo.id} task={todo} onComplete={completeTodo} />
+              <TaskItem
+                key={todo.id}
+                task={todo}
+                onComplete={completeTodo}
+                onDelete={deleteTodo}
+              />
             ))}
           </ul>
         </div>
