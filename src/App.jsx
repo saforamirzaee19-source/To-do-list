@@ -33,6 +33,9 @@ function App() {
   const [editText, setEditText] = useState("");
   const [editPriority, setEditPriority] = useState("Medium");
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("All");
+
   // Add a new task
   const addTodo = () => {
     if (!input.trim()) return;
@@ -41,7 +44,7 @@ function App() {
       id: Date.now(),
       text: input.trim(),
       completed: false,
-      priority: priority,
+      priority,
     };
 
     setTodos((prevTodos) => [...prevTodos, newTodo]);
@@ -100,25 +103,79 @@ function App() {
     cancelEdit();
   };
 
-  // Count incomplete tasks
-  const incompleteCount = todos.filter((todo) => !todo.completed).length;
+  // Task counts
+  const totalCount = todos.length;
+
+  const activeCount = todos.filter((todo) => !todo.completed).length;
+
+  const completedCount = todos.filter((todo) => todo.completed).length;
+
+  // Search and filter
+  const filteredTodos = todos.filter((todo) => {
+    const matchesSearch = todo.text
+      .toLowerCase()
+      .includes(searchTerm.trim().toLowerCase());
+
+    const matchesFilter =
+      filter === "All" ||
+      (filter === "Active" && !todo.completed) ||
+      (filter === "Completed" && todo.completed);
+
+    return matchesSearch && matchesFilter;
+  });
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950">
+    <div className="min-h-screen flex flex-col bg-slate-900">
       <Header />
 
       <main className="flex-grow flex items-center justify-center p-4">
         <div className="w-full max-w-xl bg-slate-800 border border-slate-700 shadow-2xl rounded-2xl p-6 sm:p-8">
+          {/* Heading */}
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-white">TaskFlow</h1>
 
-            <p className="text-sm text-slate-400 mt-2">
-              {incompleteCount} {incompleteCount === 1 ? "task" : "tasks"} left
-            </p>
+            <div className="flex flex-wrap gap-3 mt-3 text-sm">
+              <span className="text-slate-300">Total: {totalCount}</span>
+
+              <span className="text-blue-400">Active: {activeCount}</span>
+
+              <span className="text-green-400">
+                Completed: {completedCount}
+              </span>
+            </div>
+          </div>
+
+          {/* Search */}
+          <div className="mb-4">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search tasks..."
+              className="w-full min-w-0 px-4 py-2.5 bg-slate-900 text-white placeholder-slate-500 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
+            />
+          </div>
+
+          {/* Filters */}
+          <div className="flex flex-wrap gap-2 mb-5">
+            {["All", "Active", "Completed"].map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => setFilter(item)}
+                className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+                  filter === item
+                    ? "bg-violet-600 text-white"
+                    : "bg-slate-900 text-slate-300 hover:bg-slate-700"
+                }`}
+              >
+                {item}
+              </button>
+            ))}
           </div>
 
           {/* Add Task */}
-          <div className="mb-6 flex flex-col sm:flex-row gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 mb-6">
             <input
               type="text"
               value={input}
@@ -133,8 +190,8 @@ function App() {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value)}
-              aria-label="New task priority"
-              className="px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
+              aria-label="Task priority"
+              className="px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
             >
               <option value="Low">Low</option>
               <option value="Medium">Medium</option>
@@ -144,20 +201,22 @@ function App() {
             <button
               type="button"
               onClick={addTodo}
-              className="px-5 py-2.5 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-700 transition-colors"
+              className="px-5 py-2.5 rounded-xl bg-violet-600 text-white hover:bg-violet-700 transition-colors"
             >
               Add
             </button>
           </div>
 
           {/* Task List */}
-          {todos.length === 0 ? (
-            <p className="text-center text-slate-400 py-8">
-              No tasks yet. Add your first task!
+          {filteredTodos.length === 0 ? (
+            <p className="text-center text-slate-400 py-6">
+              {searchTerm.trim() || filter !== "All"
+                ? "No matching tasks found."
+                : "No tasks yet. Add your first task!"}
             </p>
           ) : (
             <ul className="space-y-3">
-              {todos.map((todo) => (
+              {filteredTodos.map((todo) => (
                 <TaskItem
                   key={todo.id}
                   task={todo}
