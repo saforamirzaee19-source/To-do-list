@@ -248,23 +248,31 @@ function App() {
                 : "No tasks yet. Add your first task!"}
             </p>
           ) : (
-            <ul className="space-y-3">
-              {filteredTodos.map((todo) => (
-                <TaskItem
-                  key={todo.id}
-                  task={todo}
-                  onComplete={completeTodo}
-                  onDelete={deleteTodo}
-                  isEditing={editingId === todo.id}
-                  editText={editText}
-                  editPriority={editPriority}
-                  onEditTextChange={setEditText}
-                  onEditPriorityChange={setEditPriority}
-                  onStartEdit={startEdit}
-                  onSaveEdit={saveEdit}
-                  onCancelEdit={cancelEdit}
-                />
-              ))}
+            <ul className="space-y-2">
+              {filteredTodos.length > 0 ? (
+                filteredTodos.map((todo) => (
+                  <TaskItem
+                    key={todo.id}
+                    task={todo}
+                    onComplete={completeTodo}
+                    onDelete={deleteTodo}
+                    isEditing={editingId === todo.id}
+                    editText={editText}
+                    editPriority={editPriority}
+                    onEditTextChange={setEditText}
+                    onEditPriorityChange={setEditPriority}
+                    onStartEdit={startEdit}
+                    onSaveEdit={saveEdit}
+                    onCancelEdit={cancelEdit}
+                  />
+                ))
+              ) : (
+                <li className="text-center py-8 text-slate-400" role="status">
+                  {todos.length === 0
+                    ? "No tasks yet. Add your first task!"
+                    : "No matching tasks. Try another search or filter."}
+                </li>
+              )}
             </ul>
           )}
         </div>
