@@ -4,35 +4,49 @@ import Footer from "./Components/Footer";
 import TaskItem from "./Components/TaskItem";
 
 const initialTodos = [
-  { id: 1, text: "Buy groceries", completed: false },
-  { id: 2, text: "Finish the React project", completed: false },
-  { id: 3, text: "Go for a walk", completed: false },
+  {
+    id: 1,
+    text: "Buy groceries",
+    completed: false,
+    priority: "Medium",
+  },
+  {
+    id: 2,
+    text: "Finish the React project",
+    completed: false,
+    priority: "High",
+  },
+  {
+    id: 3,
+    text: "Go for a walk",
+    completed: false,
+    priority: "Low",
+  },
 ];
 
 function App() {
   const [todos, setTodos] = useState(initialTodos);
   const [input, setInput] = useState("");
+  const [priority, setPriority] = useState("Medium");
 
-  // Editing states
   const [editingId, setEditingId] = useState(null);
   const [editText, setEditText] = useState("");
+  const [editPriority, setEditPriority] = useState("Medium");
 
   // Add a new task
   const addTodo = () => {
-    if (!input.trim()) {
-      return;
-    }
+    if (!input.trim()) return;
 
-    setTodos((prevTodos) => [
-      ...prevTodos,
-      {
-        id: Date.now(),
-        text: input.trim(),
-        completed: false,
-      },
-    ]);
+    const newTodo = {
+      id: Date.now(),
+      text: input.trim(),
+      completed: false,
+      priority: priority,
+    };
 
+    setTodos((prevTodos) => [...prevTodos, newTodo]);
     setInput("");
+    setPriority("Medium");
   };
 
   // Complete a task
@@ -48,34 +62,38 @@ function App() {
   const deleteTodo = (id) => {
     setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
 
-    // Cancel editing if the deleted task was being edited
     if (editingId === id) {
-      setEditingId(null);
-      setEditText("");
+      cancelEdit();
     }
   };
 
-  // Start editing a task
+  // Start editing
   const startEdit = (task) => {
     setEditingId(task.id);
     setEditText(task.text);
+    setEditPriority(task.priority || "Medium");
   };
 
-  // Cancel editing without changing the original text
+  // Cancel editing
   const cancelEdit = () => {
     setEditingId(null);
     setEditText("");
+    setEditPriority("Medium");
   };
 
   // Save edited task
   const saveEdit = (id) => {
-    if (!editText.trim()) {
-      return;
-    }
+    if (!editText.trim()) return;
 
     setTodos((prevTodos) =>
       prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, text: editText.trim() } : todo,
+        todo.id === id
+          ? {
+              ...todo,
+              text: editText.trim(),
+              priority: editPriority,
+            }
+          : todo,
       ),
     );
 
@@ -86,55 +104,77 @@ function App() {
   const incompleteCount = todos.filter((todo) => !todo.completed).length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-900">
+    <div className="min-h-screen flex flex-col bg-slate-950">
       <Header />
 
       <main className="flex-grow flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-slate-800 border border-slate-700 shadow-2xl rounded-2xl p-8">
+        <div className="w-full max-w-xl bg-slate-800 border border-slate-700 shadow-2xl rounded-2xl p-6 sm:p-8">
           <div className="mb-6">
             <h1 className="text-3xl font-bold text-white">TaskFlow</h1>
 
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-slate-400 mt-2">
               {incompleteCount} {incompleteCount === 1 ? "task" : "tasks"} left
             </p>
           </div>
 
           {/* Add Task */}
-          <div className="mb-5 flex gap-2">
+          <div className="mb-6 flex flex-col sm:flex-row gap-2">
             <input
+              type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addTodo()}
-              type="text"
-              placeholder="Add a new task"
+              onKeyDown={(e) => {
+                if (e.key === "Enter") addTodo();
+              }}
+              placeholder="Add a new task..."
               className="flex-grow min-w-0 px-4 py-2.5 bg-slate-900 text-white placeholder-slate-500 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
             />
 
-            <button
-              onClick={addTodo}
-              className="bg-violet-500 text-white px-4 py-2.5 rounded-xl font-medium hover:bg-violet-600 transition-colors"
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+              aria-label="New task priority"
+              className="px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
             >
-              Add Task
+              <option value="Low">Low</option>
+              <option value="Medium">Medium</option>
+              <option value="High">High</option>
+            </select>
+
+            <button
+              type="button"
+              onClick={addTodo}
+              className="px-5 py-2.5 rounded-xl bg-violet-600 text-white font-medium hover:bg-violet-700 transition-colors"
+            >
+              Add
             </button>
           </div>
 
           {/* Task List */}
-          <ul className="space-y-2">
-            {todos.map((todo) => (
-              <TaskItem
-                key={todo.id}
-                task={todo}
-                onComplete={completeTodo}
-                onDelete={deleteTodo}
-                isEditing={editingId === todo.id}
-                editText={editText}
-                onEditTextChange={setEditText}
-                onStartEdit={startEdit}
-                onSaveEdit={saveEdit}
-                onCancelEdit={cancelEdit}
-              />
-            ))}
-          </ul>
+          {todos.length === 0 ? (
+            <p className="text-center text-slate-400 py-8">
+              No tasks yet. Add your first task!
+            </p>
+          ) : (
+            <ul className="space-y-3">
+              {todos.map((todo) => (
+                <TaskItem
+                  key={todo.id}
+                  task={todo}
+                  onComplete={completeTodo}
+                  onDelete={deleteTodo}
+                  isEditing={editingId === todo.id}
+                  editText={editText}
+                  editPriority={editPriority}
+                  onEditTextChange={setEditText}
+                  onEditPriorityChange={setEditPriority}
+                  onStartEdit={startEdit}
+                  onSaveEdit={saveEdit}
+                  onCancelEdit={cancelEdit}
+                />
+              ))}
+            </ul>
+          )}
         </div>
       </main>
 
