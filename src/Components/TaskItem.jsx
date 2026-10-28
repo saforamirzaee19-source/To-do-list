@@ -4,6 +4,8 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
   const [editPriority, setEditPriority] = useState(task.priority || "Medium");
+  const [editDueDate, setEditDueDate] = useState(task.dueDate || "");
+  const [dateError, setDateError] = useState("");
 
   const priorityColor =
     task.priority === "High"
@@ -15,6 +17,8 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
   const startEdit = () => {
     setEditText(task.text);
     setEditPriority(task.priority || "Medium");
+    setEditDueDate(task.dueDate || "");
+    setDateError("");
     setIsEditing(true);
   };
 
@@ -24,10 +28,15 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
 
   const saveEdit = () => {
     if (!editText.trim()) return;
+    if (editDueDate && !isValidDate(editDueDate)) {
+      setDateError("Please enter a valid due date.");
+      return;
+    }
 
     onSaveEdit(task.id, {
       text: editText.trim(),
       priority: editPriority,
+      dueDate: editDueDate,
     });
 
     setIsEditing(false);
@@ -60,6 +69,19 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             <option value="Medium">Medium Priority</option>
             <option value="High">High Priority</option>
           </select>
+
+          <input
+            type="date"
+            value={editDueDate}
+            onChange={(event) => {
+              setEditDueDate(event.target.value);
+              setDateError("");
+            }}
+            aria-label="Edit due date"
+            aria-invalid={Boolean(dateError)}
+            className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
+          />
+          {dateError && <p className="text-sm text-red-400">{dateError}</p>}
 
           <div className="flex gap-2">
             <button
@@ -95,6 +117,24 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             <span className={`block text-xs mt-1 ${priorityColor}`}>
               Priority: {task.priority || "Medium"}
             </span>
+            {task.dueDate && isValidDate(task.dueDate) && (
+              <span className="block text-xs mt-1 text-slate-400">
+                Due: {task.dueDate}
+              </span>
+            )}
+            {task.dueDate && !isValidDate(task.dueDate) && (
+              <span className="block text-xs mt-1 text-red-400">
+                Invalid due date.
+              </span>
+            )}
+            {!task.completed &&
+              task.dueDate &&
+              isValidDate(task.dueDate) &&
+              isOverdue(task.dueDate) && (
+              <span className="block text-xs mt-1 font-semibold text-red-400">
+                Overdue
+              </span>
+            )}
           </div>
 
           <button
@@ -128,3 +168,14 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
 }
 
 export default TaskItem;
+
+function isValidDate(value) {
+  const parsed = new Date(`${value}T00:00:00`);
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+function isOverdue(value) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return new Date(`${value}T00:00:00`) < today;
+}

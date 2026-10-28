@@ -41,6 +41,9 @@ function App() {
               (typeof todo.id === "string" || typeof todo.id === "number") &&
               typeof todo.text === "string" &&
               typeof todo.completed === "boolean" &&
+              (todo.dueDate === undefined ||
+                todo.dueDate === "" ||
+                (typeof todo.dueDate === "string" && isValidDate(todo.dueDate))) &&
               ["Low", "Medium", "High"].includes(todo.priority),
           )
         ) {
@@ -62,12 +65,13 @@ function App() {
     }
   }, [todos]);
 
-  const addTodo = (text, priority) => {
+  const addTodo = (text, priority, dueDate) => {
     const newTodo = {
       id: Date.now(),
       text,
       completed: false,
       priority,
+      dueDate,
     };
 
     setTodos((prevTodos) => [...prevTodos, newTodo]);
@@ -131,3 +135,8 @@ function App() {
 }
 
 export default App;
+
+function isValidDate(value) {
+  const parsed = new Date(`${value}T00:00:00`);
+  return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
