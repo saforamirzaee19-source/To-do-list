@@ -170,12 +170,19 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
 export default TaskItem;
 
 function isValidDate(value) {
-  const parsed = new Date(`${value}T00:00:00`);
-  return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day
+  );
 }
 
 function isOverdue(value) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return new Date(`${value}T00:00:00`) < today;
+  const today = new Date().toLocaleDateString("en-CA");
+  return value < today;
 }
