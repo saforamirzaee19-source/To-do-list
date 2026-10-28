@@ -1,16 +1,24 @@
-# React + Vite
+# TaskFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+TaskFlow is a task list app built with React and Vite. It supports task priorities, due dates, search, status and priority filters, sorting, local storage, and a five-second undo option after deleting a task.
 
-Currently, two official plugins are available:
+## Where the state lives and why
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Tasks:** The task list lives in `App.jsx` through the `useLocalStorage` hook. `App` owns tasks because adding, editing, completing, deleting, and undoing tasks can affect more than one component. The hook loads and saves the list and falls back safely when stored data is invalid.
+- **Search, status filter, priority filter, and sort order:** These live in `TaskList.jsx` because they only control which tasks that component displays. The visible list is derived from the task prop each render; it is not stored separately in state.
+- **New task fields:** The task text, priority, and due date live in `TaskForm.jsx` because they are only needed while creating a task.
+- **Edit fields:** The edited text, priority, and due date, along with whether the item is being edited and any date error, live in `TaskItem.jsx` because they belong to one task item.
+- **Undo notice:** The recently deleted task and its original position live in `App.jsx`, where the task list can be restored. A ref holds the five-second timeout ID so it can be cleared when needed.
 
-## React Compiler
+## Help and sources
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+I used AI for help implementing the five-second delete and undo feature.
 
-## Expanding the ESLint configuration
+## Run locally
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Install dependencies and start the Vite development server:
+
+```sh
+npm install
+npm run dev
+```
