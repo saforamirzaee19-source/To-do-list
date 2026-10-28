@@ -1,5 +1,4 @@
 import { useState } from "react";
-import EditTask from "./EditTask";
 
 function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -37,14 +36,49 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
   return (
     <li className="flex items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-700">
       {isEditing ? (
-        <EditTask
-          editText={editText}
-          editPriority={editPriority}
-          onEditTextChange={setEditText}
-          onEditPriorityChange={setEditPriority}
-          onSave={saveEdit}
-          onCancel={cancelEdit}
-        />
+        <div className="flex flex-col gap-3 flex-grow min-w-0">
+          <input
+            type="text"
+            value={editText}
+            onChange={(event) => setEditText(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") saveEdit();
+              if (event.key === "Escape") cancelEdit();
+            }}
+            aria-label="Edit task name"
+            autoFocus
+            className="w-full min-w-0 px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
+          />
+
+          <select
+            value={editPriority}
+            onChange={(event) => setEditPriority(event.target.value)}
+            aria-label="Edit task priority"
+            className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
+          >
+            <option value="Low">Low Priority</option>
+            <option value="Medium">Medium Priority</option>
+            <option value="High">High Priority</option>
+          </select>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={saveEdit}
+              className="px-3 py-1.5 text-sm rounded-lg bg-green-600 text-white"
+            >
+              Save
+            </button>
+
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="px-3 py-1.5 text-sm rounded-lg bg-slate-600 text-white"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
       ) : (
         <>
           <div className="flex-grow min-w-0">

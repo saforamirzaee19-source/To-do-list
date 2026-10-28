@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
-import TaskItem from "./Components/TaskItem";
+import TaskForm from "./Components/TaskForm";
+import TaskList from "./Components/TaskList";
 
 const initialTodos = [
   {
@@ -53,11 +54,6 @@ function App() {
     return initialTodos;
   });
 
-  const [input, setInput] = useState("");
-  const [priority, setPriority] = useState("Medium");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("All");
-
   useEffect(() => {
     try {
       localStorage.setItem("taskflow-todos", JSON.stringify(todos));
@@ -66,19 +62,15 @@ function App() {
     }
   }, [todos]);
 
-  const addTodo = () => {
-    if (!input.trim()) return;
-
+  const addTodo = (text, priority) => {
     const newTodo = {
       id: Date.now(),
-      text: input.trim(),
+      text,
       completed: false,
       priority,
     };
 
     setTodos((prevTodos) => [...prevTodos, newTodo]);
-    setInput("");
-    setPriority("Medium");
   };
 
   const completeTodo = (id) => {
@@ -105,19 +97,6 @@ function App() {
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.filter((todo) => todo.completed).length;
 
-  const filteredTodos = todos.filter((todo) => {
-    const matchesSearch = todo.text
-      .toLowerCase()
-      .includes(searchTerm.trim().toLowerCase());
-
-    const matchesFilter =
-      filter === "All" ||
-      (filter === "Active" && !todo.completed) ||
-      (filter === "Completed" && todo.completed);
-
-    return matchesSearch && matchesFilter;
-  });
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-900">
       <Header />
@@ -136,84 +115,13 @@ function App() {
             </div>
           </div>
 
-          <div className="mb-4">
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Search tasks..."
-              className="w-full min-w-0 px-4 py-2.5 bg-slate-900 text-white placeholder-slate-500 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-          </div>
-
-          <div className="flex flex-wrap gap-2 mb-5">
-            {["All", "Active", "Completed"].map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setFilter(item)}
-                className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-                  filter === item
-                    ? "bg-violet-600 text-white"
-                    : "bg-slate-900 text-slate-300 hover:bg-slate-700"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-2 mb-6">
-            <input
-              type="text"
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") addTodo();
-              }}
-              placeholder="Add a new task..."
-              className="flex-grow min-w-0 px-4 py-2.5 bg-slate-900 text-white placeholder-slate-500 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
-            />
-
-            <select
-              value={priority}
-              onChange={(event) => setPriority(event.target.value)}
-              aria-label="Task priority"
-              className="px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
-            >
-              <option value="Low">Low</option>
-              <option value="Medium">Medium</option>
-              <option value="High">High</option>
-            </select>
-
-            <button
-              type="button"
-              onClick={addTodo}
-              className="px-5 py-2.5 rounded-xl bg-violet-600 text-white hover:bg-violet-700 transition-colors"
-            >
-              Add
-            </button>
-          </div>
-
-          {filteredTodos.length === 0 ? (
-            <p className="text-center text-slate-400 py-6">
-              {searchTerm.trim() || filter !== "All"
-                ? "No matching tasks found."
-                : "No tasks yet. Add your first task!"}
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {filteredTodos.map((todo) => (
-                <TaskItem
-                  key={todo.id}
-                  task={todo}
-                  onComplete={completeTodo}
-                  onDelete={deleteTodo}
-                  onSaveEdit={saveEdit}
-                />
-              ))}
-            </ul>
-          )}
+          <TaskForm onAdd={addTodo} />
+          <TaskList
+            tasks={todos}
+            onComplete={completeTodo}
+            onDelete={deleteTodo}
+            onSaveEdit={saveEdit}
+          />
         </div>
       </main>
 
