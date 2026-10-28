@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import TaskForm from "./Components/TaskForm";
 import TaskList from "./Components/TaskList";
+import useLocalStorage from "./Hooks/useLocalStorage";
 
 const initialTodos = [
   {
@@ -26,44 +26,11 @@ const initialTodos = [
 ];
 
 function App() {
-  const [todos, setTodos] = useState(() => {
-    try {
-      const savedTodos = localStorage.getItem("taskflow-todos");
-
-      if (savedTodos !== null) {
-        const parsedTodos = JSON.parse(savedTodos);
-
-        if (
-          Array.isArray(parsedTodos) &&
-          parsedTodos.every(
-            (todo) =>
-              todo &&
-              (typeof todo.id === "string" || typeof todo.id === "number") &&
-              typeof todo.text === "string" &&
-              typeof todo.completed === "boolean" &&
-              (todo.dueDate === undefined ||
-                todo.dueDate === "" ||
-                (typeof todo.dueDate === "string" && isValidDate(todo.dueDate))) &&
-              ["Low", "Medium", "High"].includes(todo.priority),
-          )
-        ) {
-          return parsedTodos;
-        }
-      }
-    } catch (error) {
-      console.error("Could not load saved tasks:", error);
-    }
-
-    return initialTodos;
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("taskflow-todos", JSON.stringify(todos));
-    } catch (error) {
-      console.error("Could not save tasks:", error);
-    }
-  }, [todos]);
+  const [todos, setTodos] = useLocalStorage(
+    "taskflow-todos",
+    initialTodos,
+    areValidTodos,
+  );
 
   const addTodo = (text, priority, dueDate) => {
     const newTodo = {
@@ -146,5 +113,22 @@ function isValidDate(value) {
     parsed.getUTCFullYear() === year &&
     parsed.getUTCMonth() === month - 1 &&
     parsed.getUTCDate() === day
+  );
+}
+
+function areValidTodos(value) {
+  return (
+    Array.isArray(value) &&
+    value.every(
+      (todo) =>
+        todo &&
+        (typeof todo.id === "string" || typeof todo.id === "number") &&
+        typeof todo.text === "string" &&
+        typeof todo.completed === "boolean" &&
+        (todo.dueDate === undefined ||
+          todo.dueDate === "" ||
+          (typeof todo.dueDate === "string" && isValidDate(todo.dueDate))) &&
+        ["Low", "Medium", "High"].includes(todo.priority),
+    )
   );
 }
