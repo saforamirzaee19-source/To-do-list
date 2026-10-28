@@ -11,13 +11,13 @@ function EditTask({
       <input
         type="text"
         value={editText}
-        onChange={(e) => onEditTextChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
+        onChange={(event) => onEditTextChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
             onSave();
           }
 
-          if (e.key === "Escape") {
+          if (event.key === "Escape") {
             onCancel();
           }
         }}
@@ -28,7 +28,7 @@ function EditTask({
 
       <select
         value={editPriority}
-        onChange={(e) => onEditPriorityChange(e.target.value)}
+        onChange={(event) => onEditPriorityChange(event.target.value)}
         aria-label="Edit task priority"
         className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
       >

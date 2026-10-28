@@ -1,18 +1,11 @@
+import { useState } from "react";
 import EditTask from "./EditTask";
 
-function TaskItem({
-  task,
-  onComplete,
-  onDelete,
-  isEditing,
-  editText,
-  editPriority,
-  onEditTextChange,
-  onEditPriorityChange,
-  onStartEdit,
-  onSaveEdit,
-  onCancelEdit,
-}) {
+function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(task.text);
+  const [editPriority, setEditPriority] = useState(task.priority || "Medium");
+
   const priorityColor =
     task.priority === "High"
       ? "text-red-400"
@@ -20,16 +13,37 @@ function TaskItem({
         ? "text-yellow-400"
         : "text-green-400";
 
+  const startEdit = () => {
+    setEditText(task.text);
+    setEditPriority(task.priority || "Medium");
+    setIsEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const saveEdit = () => {
+    if (!editText.trim()) return;
+
+    onSaveEdit(task.id, {
+      text: editText.trim(),
+      priority: editPriority,
+    });
+
+    setIsEditing(false);
+  };
+
   return (
     <li className="flex items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-700">
       {isEditing ? (
         <EditTask
           editText={editText}
           editPriority={editPriority}
-          onEditTextChange={onEditTextChange}
-          onEditPriorityChange={onEditPriorityChange}
-          onSave={() => onSaveEdit(task.id)}
-          onCancel={onCancelEdit}
+          onEditTextChange={setEditText}
+          onEditPriorityChange={setEditPriority}
+          onSave={saveEdit}
+          onCancel={cancelEdit}
         />
       ) : (
         <>
@@ -51,7 +65,7 @@ function TaskItem({
 
           <button
             type="button"
-            onClick={() => onStartEdit(task)}
+            onClick={startEdit}
             className="px-3 py-1.5 text-sm rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors"
           >
             Edit
