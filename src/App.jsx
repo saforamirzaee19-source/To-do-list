@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import TaskForm from "./Components/TaskForm";
@@ -31,6 +32,15 @@ function App() {
     initialTodos,
     areValidTodos,
   );
+  const [deletedTodo, setDeletedTodo] = useState(null);
+  const undoTimeoutRef = useRef(null);
+
+  useEffect(
+    () => () => {
+      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    },
+    [],
+  );
 
   const addTodo = (text, priority, dueDate) => {
     const newTodo = {
@@ -53,7 +63,38 @@ function App() {
   };
 
   const deleteTodo = (id) => {
+    const taskToDelete = todos.find((todo) => todo.id === id);
+    if (!taskToDelete) return;
+
+    setDeletedTodo({ task: taskToDelete, index: todos.indexOf(taskToDelete) });
+    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    undoTimeoutRef.current = setTimeout(() => {
+      setDeletedTodo(null);
+      undoTimeoutRef.current = null;
+    }, 5000);
+
     setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+  };
+
+  const undoDelete = () => {
+    if (!deletedTodo) return;
+
+    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
+    setTodos((prevTodos) => {
+      if (prevTodos.some((todo) => todo.id === deletedTodo.task.id)) {
+        return prevTodos;
+      }
+
+      const restoredTodos = [...prevTodos];
+      restoredTodos.splice(
+        Math.min(deletedTodo.index, restoredTodos.length),
+        0,
+        deletedTodo.task,
+      );
+      return restoredTodos;
+    });
+    setDeletedTodo(null);
+    undoTimeoutRef.current = null;
   };
 
   const saveEdit = (id, changes) => {
@@ -93,6 +134,21 @@ function App() {
             onDelete={deleteTodo}
             onSaveEdit={saveEdit}
           />
+          {deletedTodo && (
+            <div
+              role="status"
+              className="mt-4 flex items-center justify-between rounded-xl bg-slate-900 px-4 py-3 text-sm text-white"
+            >
+              <span>Deleted</span>
+              <button
+                type="button"
+                onClick={undoDelete}
+                className="font-semibold text-violet-400 hover:text-violet-300"
+              >
+                Undo
+              </button>
+            </div>
+          )}
         </div>
       </main>
 
