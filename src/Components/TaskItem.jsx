@@ -6,6 +6,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
   const [editPriority, setEditPriority] = useState(task.priority || "Medium");
   const [editDueDate, setEditDueDate] = useState(task.dueDate || "");
   const [dateError, setDateError] = useState("");
+  const [priorityError, setPriorityError] = useState("");
 
   const priorityColor =
     task.priority === "High"
@@ -19,6 +20,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
     setEditPriority(task.priority || "Medium");
     setEditDueDate(task.dueDate || "");
     setDateError("");
+    setPriorityError("");
     setIsEditing(true);
   };
 
@@ -28,6 +30,10 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
 
   const saveEdit = () => {
     if (!editText.trim()) return;
+    if (!isValidPriority(editPriority)) {
+      setPriorityError("Please select a valid priority.");
+      return;
+    }
     if (!editDueDate) {
       setDateError("Please select a due date.");
       return;
@@ -65,14 +71,20 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
 
           <select
             value={editPriority}
-            onChange={(event) => setEditPriority(event.target.value)}
+            onChange={(event) => {
+              setEditPriority(event.target.value);
+              setPriorityError("");
+            }}
             aria-label="Edit task priority"
+            required
+            aria-invalid={Boolean(priorityError)}
             className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
           >
             <option value="Low">Low Priority</option>
             <option value="Medium">Medium Priority</option>
             <option value="High">High Priority</option>
           </select>
+          {priorityError && <p className="text-sm text-red-400">{priorityError}</p>}
 
           <input
             type="date"
@@ -190,4 +202,8 @@ function isValidDate(value) {
 function isOverdue(value) {
   const today = new Date().toLocaleDateString("en-CA");
   return value < today;
+}
+
+function isValidPriority(value) {
+  return ["Low", "Medium", "High"].includes(value);
 }

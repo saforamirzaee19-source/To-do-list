@@ -5,9 +5,14 @@ function TaskForm({ onAdd }) {
   const [priority, setPriority] = useState("Medium");
   const [dueDate, setDueDate] = useState("");
   const [dateError, setDateError] = useState("");
+  const [priorityError, setPriorityError] = useState("");
 
   const submitTask = () => {
     const text = input.trim();
+    if (!isValidPriority(priority)) {
+      setPriorityError("Please select a valid priority.");
+      return;
+    }
     if (!dueDate) {
       setDateError("Please select a due date.");
       return;
@@ -23,6 +28,7 @@ function TaskForm({ onAdd }) {
     setPriority("Medium");
     setDueDate("");
     setDateError("");
+    setPriorityError("");
   };
 
   return (
@@ -42,8 +48,13 @@ function TaskForm({ onAdd }) {
 
         <select
           value={priority}
-          onChange={(event) => setPriority(event.target.value)}
+          onChange={(event) => {
+            setPriority(event.target.value);
+            setPriorityError("");
+          }}
           aria-label="Task priority"
+          required
+          aria-invalid={Boolean(priorityError)}
           className="px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
         >
           <option value="Low">Low</option>
@@ -72,6 +83,7 @@ function TaskForm({ onAdd }) {
           Add
         </button>
       </div>
+      {priorityError && <p className="mt-2 text-sm text-red-400">{priorityError}</p>}
       {dateError && <p className="mt-2 text-sm text-red-400">{dateError}</p>}
     </div>
   );
@@ -88,6 +100,10 @@ function isValidDate(value) {
     parsed.getUTCMonth() === month - 1 &&
     parsed.getUTCDate() === day
   );
+}
+
+function isValidPriority(value) {
+  return ["Low", "Medium", "High"].includes(value);
 }
 
 export default TaskForm;
