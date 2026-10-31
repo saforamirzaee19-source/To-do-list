@@ -28,7 +28,11 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
 
   const saveEdit = () => {
     if (!editText.trim()) return;
-    if (editDueDate && !isValidDate(editDueDate)) {
+    if (!editDueDate) {
+      setDateError("Please select a due date.");
+      return;
+    }
+    if (!isValidDate(editDueDate)) {
       setDateError("Please enter a valid due date.");
       return;
     }
@@ -78,6 +82,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
               setDateError("");
             }}
             aria-label="Edit due date"
+            required
             aria-invalid={Boolean(dateError)}
             className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
           />

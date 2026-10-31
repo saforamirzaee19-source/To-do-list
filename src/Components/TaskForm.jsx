@@ -8,7 +8,11 @@ function TaskForm({ onAdd }) {
 
   const submitTask = () => {
     const text = input.trim();
-    if (dueDate && !isValidDate(dueDate)) {
+    if (!dueDate) {
+      setDateError("Please select a due date.");
+      return;
+    }
+    if (!isValidDate(dueDate)) {
       setDateError("Please enter a valid due date.");
       return;
     }
@@ -55,6 +59,7 @@ function TaskForm({ onAdd }) {
             setDateError("");
           }}
           aria-label="Task due date"
+          required
           aria-invalid={Boolean(dateError)}
           className="px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
         />
