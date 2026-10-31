@@ -4,32 +4,17 @@ import Footer from "./Components/Footer";
 import TaskForm from "./Components/TaskForm";
 import TaskList from "./Components/TaskList";
 import useLocalStorage from "./Hooks/useLocalStorage";
-
-const initialTodos = [
-  {
-    id: 1,
-    text: "Buy groceries",
-    completed: false,
-    priority: "Medium",
-  },
-  {
-    id: 2,
-    text: "Finish the React project",
-    completed: false,
-    priority: "High",
-  },
-  {
-    id: 3,
-    text: "Go for a walk",
-    completed: false,
-    priority: "Low",
-  },
-];
+import {
+  INITIAL_TODOS,
+  TASK_STORAGE_KEY,
+  UNDO_DELETE_DURATION_MS,
+} from "./constants";
+import { areValidTodos } from "./utils";
 
 function App() {
   const [todos, setTodos] = useLocalStorage(
-    "taskflow-todos",
-    initialTodos,
+    TASK_STORAGE_KEY,
+    INITIAL_TODOS,
     areValidTodos,
   );
   const [deletedTodo, setDeletedTodo] = useState(null);
@@ -71,7 +56,7 @@ function App() {
     undoTimeoutRef.current = setTimeout(() => {
       setDeletedTodo(null);
       undoTimeoutRef.current = null;
-    }, 5000);
+    }, UNDO_DELETE_DURATION_MS);
 
     setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
   };
@@ -158,33 +143,3 @@ function App() {
 }
 
 export default App;
-
-function isValidDate(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-
-  const [year, month, day] = value.split("-").map(Number);
-  const parsed = new Date(Date.UTC(year, month - 1, day));
-
-  return (
-    parsed.getUTCFullYear() === year &&
-    parsed.getUTCMonth() === month - 1 &&
-    parsed.getUTCDate() === day
-  );
-}
-
-function areValidTodos(value) {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (todo) =>
-        todo &&
-        (typeof todo.id === "string" || typeof todo.id === "number") &&
-        typeof todo.text === "string" &&
-        typeof todo.completed === "boolean" &&
-        (todo.dueDate === undefined ||
-          todo.dueDate === "" ||
-          (typeof todo.dueDate === "string" && isValidDate(todo.dueDate))) &&
-        ["Low", "Medium", "High"].includes(todo.priority),
-    )
-  );
-}

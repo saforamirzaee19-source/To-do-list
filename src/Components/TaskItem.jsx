@@ -1,23 +1,27 @@
 import { useState } from "react";
+import { DEFAULT_PRIORITY, PRIORITIES } from "../constants";
+import { isOverdue, isValidDate, isValidPriority } from "../utils";
 
 function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
-  const [editPriority, setEditPriority] = useState(task.priority || "Medium");
+  const [editPriority, setEditPriority] = useState(
+    task.priority || DEFAULT_PRIORITY,
+  );
   const [editDueDate, setEditDueDate] = useState(task.dueDate || "");
   const [dateError, setDateError] = useState("");
   const [priorityError, setPriorityError] = useState("");
 
   const priorityColor =
-    task.priority === "High"
+    task.priority === PRIORITIES[2]
       ? "text-red-400"
-      : task.priority === "Medium"
+      : task.priority === DEFAULT_PRIORITY
         ? "text-yellow-400"
         : "text-green-400";
 
   const startEdit = () => {
     setEditText(task.text);
-    setEditPriority(task.priority || "Medium");
+    setEditPriority(task.priority || DEFAULT_PRIORITY);
     setEditDueDate(task.dueDate || "");
     setDateError("");
     setPriorityError("");
@@ -53,7 +57,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
   };
 
   return (
-    <li className="flex items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-700">
+    <li className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-700">
       {isEditing ? (
         <div className="flex flex-col gap-3 flex-grow min-w-0">
           <input
@@ -80,9 +84,11 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             aria-invalid={Boolean(priorityError)}
             className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
           >
-            <option value="Low">Low Priority</option>
-            <option value="Medium">Medium Priority</option>
-            <option value="High">High Priority</option>
+            {PRIORITIES.map((item) => (
+              <option key={item} value={item}>
+                {item} Priority
+              </option>
+            ))}
           </select>
           {priorityError && <p className="text-sm text-red-400">{priorityError}</p>}
 
@@ -120,7 +126,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
         </div>
       ) : (
         <>
-          <div className="flex-grow min-w-0">
+          <div className="flex-1 min-w-0 break-words">
             <span
               className={
                 task.completed
@@ -132,7 +138,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             </span>
 
             <span className={`block text-xs mt-1 ${priorityColor}`}>
-              Priority: {task.priority || "Medium"}
+              Priority: {task.priority || DEFAULT_PRIORITY}
             </span>
             {task.dueDate && isValidDate(task.dueDate) && (
               <span className="block text-xs mt-1 text-slate-400">
@@ -185,25 +191,3 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
 }
 
 export default TaskItem;
-
-function isValidDate(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-
-  const [year, month, day] = value.split("-").map(Number);
-  const parsed = new Date(Date.UTC(year, month - 1, day));
-
-  return (
-    parsed.getUTCFullYear() === year &&
-    parsed.getUTCMonth() === month - 1 &&
-    parsed.getUTCDate() === day
-  );
-}
-
-function isOverdue(value) {
-  const today = new Date().toLocaleDateString("en-CA");
-  return value < today;
-}
-
-function isValidPriority(value) {
-  return ["Low", "Medium", "High"].includes(value);
-}

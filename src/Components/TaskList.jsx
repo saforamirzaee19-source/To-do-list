@@ -1,11 +1,20 @@
 import { useState } from "react";
 import TaskItem from "./TaskItem";
+import {
+  DEFAULT_PRIORITY_FILTER,
+  DEFAULT_STATUS_FILTER,
+  DEFAULT_TASK_SORT,
+  PRIORITY_FILTERS,
+  TASK_SORT_OPTIONS,
+  TASK_STATUS_FILTERS,
+} from "../constants";
+import { compareIds } from "../utils";
 
 function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("All");
-  const [priorityFilter, setPriorityFilter] = useState("All");
-  const [sortOrder, setSortOrder] = useState("Newest");
+  const [filter, setFilter] = useState(DEFAULT_STATUS_FILTER);
+  const [priorityFilter, setPriorityFilter] = useState(DEFAULT_PRIORITY_FILTER);
+  const [sortOrder, setSortOrder] = useState(DEFAULT_TASK_SORT);
 
   const visibleTasks = tasks
     .filter((task) => {
@@ -46,7 +55,7 @@ function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">
-        {["All", "Active", "Completed"].map((item) => (
+        {TASK_STATUS_FILTERS.map((item) => (
           <button
             key={item}
             type="button"
@@ -70,10 +79,11 @@ function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
           aria-label="Filter by priority"
           className="flex-1 px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
         >
-          <option value="All">All priorities</option>
-          <option value="Low">Low priority</option>
-          <option value="Medium">Medium priority</option>
-          <option value="High">High priority</option>
+          {PRIORITY_FILTERS.map((item) => (
+            <option key={item} value={item}>
+              {item === "All" ? "All priorities" : `${item} priority`}
+            </option>
+          ))}
         </select>
 
         <select
@@ -82,15 +92,17 @@ function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
           aria-label="Sort tasks"
           className="flex-1 px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
         >
-          <option value="Newest">Newest</option>
-          <option value="Oldest">Oldest</option>
-          <option value="Due Date">Due Date</option>
+          {TASK_SORT_OPTIONS.map((item) => (
+            <option key={item} value={item}>{item}</option>
+          ))}
         </select>
       </div>
 
       {visibleTasks.length === 0 ? (
         <p className="text-center text-slate-400 py-6">
-          {searchTerm.trim() || filter !== "All" || priorityFilter !== "All"
+          {searchTerm.trim() ||
+          filter !== DEFAULT_STATUS_FILTER ||
+          priorityFilter !== DEFAULT_PRIORITY_FILTER
             ? "No matching tasks found."
             : "No tasks yet. Add your first task!"}
         </p>
@@ -109,15 +121,6 @@ function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
       )}
     </>
   );
-}
-
-function compareIds(firstId, secondId) {
-  if (typeof firstId === "number" && typeof secondId === "number") {
-    return firstId - secondId;
-  }
-  return String(firstId).localeCompare(String(secondId), undefined, {
-    numeric: true,
-  });
 }
 
 export default TaskList;
