@@ -112,17 +112,10 @@ function App() {
             </div>
           </div>
 
-          <TaskForm onAdd={addTodo} />
-          <TaskList
-            tasks={todos}
-            onComplete={completeTodo}
-            onDelete={deleteTodo}
-            onSaveEdit={saveEdit}
-          />
           {deletedTodo && (
             <div
               role="status"
-              className="mt-4 flex items-center justify-between rounded-xl bg-slate-900 px-4 py-3 text-sm text-white"
+              className="mb-4 flex items-center justify-between rounded-xl bg-slate-900 px-4 py-3 text-sm text-white"
             >
               <span>Deleted</span>
               <button
@@ -134,6 +127,14 @@ function App() {
               </button>
             </div>
           )}
+
+          <TaskForm onAdd={addTodo} />
+          <TaskList
+            tasks={todos}
+            onComplete={completeTodo}
+            onDelete={deleteTodo}
+            onSaveEdit={saveEdit}
+          />
         </div>
       </main>
 

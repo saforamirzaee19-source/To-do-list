@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 function useLocalStorage(key, initialValue, validate = () => true) {
+  // Read saved data once when the app starts.
   const [value, setValue] = useState(() => {
     try {
       const saved = window.localStorage.getItem(key);
@@ -14,6 +15,7 @@ function useLocalStorage(key, initialValue, validate = () => true) {
     }
   });
 
+  // Save the latest value whenever it changes.
   useEffect(() => {
     try {
       window.localStorage.setItem(key, JSON.stringify(value));
