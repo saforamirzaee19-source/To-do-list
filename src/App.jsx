@@ -1,94 +1,19 @@
-import { useEffect, useRef, useState } from "react";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import TaskForm from "./Components/TaskForm";
 import TaskList from "./Components/TaskList";
-import useLocalStorage from "./Hooks/useLocalStorage";
-import {
-  INITIAL_TODOS,
-  TASK_STORAGE_KEY,
-  UNDO_DELETE_DURATION_MS,
-} from "./constants";
-import { areValidTodos } from "./utils";
+import useTodos from "./Hooks/useTodos";
 
 function App() {
-  const [todos, setTodos] = useLocalStorage(
-    TASK_STORAGE_KEY,
-    INITIAL_TODOS,
-    areValidTodos,
-  );
-  const [deletedTodo, setDeletedTodo] = useState(null);
-  const undoTimeoutRef = useRef(null);
-
-  useEffect(
-    () => () => {
-      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-    },
-    [],
-  );
-
-  const addTodo = (text, priority, dueDate) => {
-    const newTodo = {
-      id: Date.now(),
-      text,
-      completed: false,
-      priority,
-      dueDate,
-    };
-
-    setTodos((prevTodos) => [...prevTodos, newTodo]);
-  };
-
-  const completeTodo = (id) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: true } : todo,
-      ),
-    );
-  };
-
-  const deleteTodo = (id) => {
-    const taskToDelete = todos.find((todo) => todo.id === id);
-    if (!taskToDelete) return;
-
-    setDeletedTodo({ task: taskToDelete, index: todos.indexOf(taskToDelete) });
-    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-    undoTimeoutRef.current = setTimeout(() => {
-      setDeletedTodo(null);
-      undoTimeoutRef.current = null;
-    }, UNDO_DELETE_DURATION_MS);
-
-    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
-  };
-
-  const undoDelete = () => {
-    if (!deletedTodo) return;
-
-    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-    setTodos((prevTodos) => {
-      if (prevTodos.some((todo) => todo.id === deletedTodo.task.id)) {
-        return prevTodos;
-      }
-
-      const restoredTodos = [...prevTodos];
-      restoredTodos.splice(
-        Math.min(deletedTodo.index, restoredTodos.length),
-        0,
-        deletedTodo.task,
-      );
-      return restoredTodos;
-    });
-    setDeletedTodo(null);
-    undoTimeoutRef.current = null;
-  };
-
-  const saveEdit = (id, changes) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, ...changes } : todo,
-      ),
-    );
-  };
+  const {
+    todos,
+    deletedTodo,
+    addTodo,
+    completeTodo,
+    deleteTodo,
+    undoDelete,
+    saveEdit,
+  } = useTodos();
 
   const totalCount = todos.length;
   const activeCount = todos.filter((todo) => !todo.completed).length;
