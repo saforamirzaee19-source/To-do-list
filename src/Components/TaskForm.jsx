@@ -34,8 +34,8 @@ function TaskForm({ onAdd }) {
   };
 
   return (
-    <div className="mb-6">
-      <div className="flex flex-col sm:flex-row gap-2">
+    <div className="mb-8">
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]">
         <input
           type="text"
           value={input}
@@ -45,7 +45,7 @@ function TaskForm({ onAdd }) {
           }}
           placeholder="Add a new task..."
           aria-label="New task"
-          className="flex-grow min-w-0 px-4 py-2.5 bg-slate-900 text-white placeholder-slate-500 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
+          className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-violet-100"
         />
 
         <select
@@ -57,7 +57,7 @@ function TaskForm({ onAdd }) {
           aria-label="Task priority"
           required
           aria-invalid={Boolean(priorityError)}
-          className="px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
+          className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
         >
           {PRIORITIES.map((item) => (
             <option key={item} value={item}>
@@ -76,13 +76,13 @@ function TaskForm({ onAdd }) {
           aria-label="Task due date"
           required
           aria-invalid={Boolean(dateError)}
-          className="px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
+          className="min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
         />
 
         <button
           type="button"
           onClick={submitTask}
-          className="px-5 py-2.5 rounded-xl bg-violet-600 text-white hover:bg-violet-700 transition-colors"
+          className="rounded-xl bg-violet-600 px-5 py-3 font-semibold text-white shadow-lg shadow-violet-200 transition hover:-translate-y-0.5 hover:bg-violet-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-violet-200"
         >
           Add
         </button>

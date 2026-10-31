@@ -57,7 +57,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
   };
 
   return (
-    <li className="flex flex-wrap items-center gap-2 p-3 rounded-xl bg-slate-900 border border-slate-700">
+    <li className="group flex flex-wrap items-center gap-2 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-violet-100 hover:shadow-lg hover:shadow-violet-100/70">
       {isEditing ? (
         <div className="flex flex-col gap-3 flex-grow min-w-0">
           <input
@@ -70,7 +70,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             }}
             aria-label="Edit task name"
             autoFocus
-            className="w-full min-w-0 px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
+            className="w-full min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-900 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
           />
 
           <select
@@ -82,7 +82,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             aria-label="Edit task priority"
             required
             aria-invalid={Boolean(priorityError)}
-            className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
           >
             {PRIORITIES.map((item) => (
               <option key={item} value={item}>
@@ -102,7 +102,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             aria-label="Edit due date"
             required
             aria-invalid={Boolean(dateError)}
-            className="w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-slate-700 outline-none focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
           />
           {dateError && <p className="text-sm text-red-400">{dateError}</p>}
 
@@ -110,7 +110,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             <button
               type="button"
               onClick={saveEdit}
-              className="px-3 py-1.5 text-sm rounded-lg bg-green-600 text-white"
+              className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-100"
             >
               Save
             </button>
@@ -118,7 +118,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             <button
               type="button"
               onClick={cancelEdit}
-              className="px-3 py-1.5 text-sm rounded-lg bg-slate-600 text-white"
+              className="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-200 focus:outline-none focus:ring-4 focus:ring-slate-200"
             >
               Cancel
             </button>
@@ -130,8 +130,8 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             <span
               className={
                 task.completed
-                  ? "line-through text-slate-500"
-                  : "text-slate-200"
+                  ? "text-slate-400 line-through"
+                  : "font-semibold leading-6 text-slate-800"
               }
             >
               {task.text}
@@ -141,7 +141,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
               Priority: {task.priority || DEFAULT_PRIORITY}
             </span>
             {task.dueDate && isValidDate(task.dueDate) && (
-              <span className="block text-xs mt-1 text-slate-400">
+              <span className="mt-2 block text-xs text-slate-500">
                 Due: {task.dueDate}
               </span>
             )}
@@ -163,7 +163,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
           <button
             type="button"
             onClick={startEdit}
-            className="px-3 py-1.5 text-sm rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+            className="rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-100 focus:outline-none focus:ring-4 focus:ring-amber-100"
           >
             Edit
           </button>
@@ -171,7 +171,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
           <button
             type="button"
             onClick={() => onDelete(task.id)}
-            className="px-3 py-1.5 text-sm rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+            className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 focus:outline-none focus:ring-4 focus:ring-rose-100"
           >
             Delete
           </button>
@@ -180,7 +180,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
             type="button"
             onClick={() => onComplete(task.id)}
             disabled={task.completed}
-            className="px-3 py-1.5 text-sm rounded-lg bg-violet-500 text-white hover:bg-violet-600 disabled:opacity-50 transition-colors"
+            className="rounded-xl bg-violet-600 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
           >
             {task.completed ? "Done" : "Complete"}
           </button>

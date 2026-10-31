@@ -1,8 +1,8 @@
 function Footer() {
   return (
-    <footer className="w-full border-t border-slate-700 bg-slate-800">
-      <div className="mx-auto max-w-5xl px-6 py-4 text-center text-sm text-slate-500">
-        © {new Date().getFullYear()} TodoApp. All rights reserved.
+    <footer className="w-full border-t border-violet-100 bg-white/60">
+      <div className="mx-auto max-w-5xl px-6 py-5 text-center text-sm text-slate-500">
+        © {new Date().getFullYear()} TaskFlow. One step at a time.
       </div>
     </footer>
   );
