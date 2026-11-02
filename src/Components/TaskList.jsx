@@ -1,11 +1,20 @@
 import { useState } from "react";
 import TaskItem from "./TaskItem";
+import {
+  DEFAULT_PRIORITY_FILTER,
+  DEFAULT_STATUS_FILTER,
+  DEFAULT_TASK_SORT,
+  PRIORITY_FILTERS,
+  TASK_SORT_OPTIONS,
+  TASK_STATUS_FILTERS,
+} from "../constants";
+import { compareIds } from "../utils";
 
 function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filter, setFilter] = useState("All");
-  const [priorityFilter, setPriorityFilter] = useState("All");
-  const [sortOrder, setSortOrder] = useState("Newest");
+  const [filter, setFilter] = useState(DEFAULT_STATUS_FILTER);
+  const [priorityFilter, setPriorityFilter] = useState(DEFAULT_PRIORITY_FILTER);
+  const [sortOrder, setSortOrder] = useState(DEFAULT_TASK_SORT);
 
   const visibleTasks = tasks
     .filter((task) => {
@@ -41,12 +50,12 @@ function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
           onChange={(event) => setSearchTerm(event.target.value)}
           placeholder="Search tasks..."
           aria-label="Search tasks"
-          className="w-full min-w-0 px-4 py-2.5 bg-slate-900 text-white placeholder-slate-500 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500"
+          className="w-full min-w-0 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 shadow-sm transition placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-violet-100"
         />
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">
-        {["All", "Active", "Completed"].map((item) => (
+        {TASK_STATUS_FILTERS.map((item) => (
           <button
             key={item}
             type="button"
@@ -54,8 +63,8 @@ function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
             aria-pressed={filter === item}
             className={`px-4 py-2 rounded-lg text-sm transition-colors ${
               filter === item
-                ? "bg-violet-600 text-white"
-                : "bg-slate-900 text-slate-300 hover:bg-slate-700"
+                ? "bg-violet-600 text-white shadow-md shadow-violet-200"
+                : "bg-slate-100 text-slate-600 hover:bg-violet-50 hover:text-violet-700"
             }`}
           >
             {item}
@@ -68,29 +77,32 @@ function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
           value={priorityFilter}
           onChange={(event) => setPriorityFilter(event.target.value)}
           aria-label="Filter by priority"
-          className="flex-1 px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
+          className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-700 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
         >
-          <option value="All">All priorities</option>
-          <option value="Low">Low priority</option>
-          <option value="Medium">Medium priority</option>
-          <option value="High">High priority</option>
+          {PRIORITY_FILTERS.map((item) => (
+            <option key={item} value={item}>
+              {item === "All" ? "All priorities" : `${item} priority`}
+            </option>
+          ))}
         </select>
 
         <select
           value={sortOrder}
           onChange={(event) => setSortOrder(event.target.value)}
           aria-label="Sort tasks"
-          className="flex-1 px-3 py-2.5 bg-slate-900 text-white border border-slate-700 rounded-xl"
+          className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-slate-700 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
         >
-          <option value="Newest">Newest</option>
-          <option value="Oldest">Oldest</option>
-          <option value="Due Date">Due Date</option>
+          {TASK_SORT_OPTIONS.map((item) => (
+            <option key={item} value={item}>{item}</option>
+          ))}
         </select>
       </div>
 
       {visibleTasks.length === 0 ? (
-        <p className="text-center text-slate-400 py-6">
-          {searchTerm.trim() || filter !== "All" || priorityFilter !== "All"
+        <p className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-5 py-10 text-center text-slate-500">
+          {searchTerm.trim() ||
+          filter !== DEFAULT_STATUS_FILTER ||
+          priorityFilter !== DEFAULT_PRIORITY_FILTER
             ? "No matching tasks found."
             : "No tasks yet. Add your first task!"}
         </p>
@@ -109,15 +121,6 @@ function TaskList({ tasks, onComplete, onDelete, onSaveEdit }) {
       )}
     </>
   );
-}
-
-function compareIds(firstId, secondId) {
-  if (typeof firstId === "number" && typeof secondId === "number") {
-    return firstId - secondId;
-  }
-  return String(firstId).localeCompare(String(secondId), undefined, {
-    numeric: true,
-  });
 }
 
 export default TaskList;

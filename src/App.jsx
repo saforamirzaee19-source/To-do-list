@@ -1,154 +1,86 @@
-import { useEffect, useRef, useState } from "react";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import TaskForm from "./Components/TaskForm";
 import TaskList from "./Components/TaskList";
-import useLocalStorage from "./Hooks/useLocalStorage";
-
-const initialTodos = [
-  {
-    id: 1,
-    text: "Buy groceries",
-    completed: false,
-    priority: "Medium",
-  },
-  {
-    id: 2,
-    text: "Finish the React project",
-    completed: false,
-    priority: "High",
-  },
-  {
-    id: 3,
-    text: "Go for a walk",
-    completed: false,
-    priority: "Low",
-  },
-];
+import useTodos from "./Hooks/useTodos";
 
 function App() {
-  const [todos, setTodos] = useLocalStorage(
-    "taskflow-todos",
-    initialTodos,
-    areValidTodos,
-  );
-  const [deletedTodo, setDeletedTodo] = useState(null);
-  const undoTimeoutRef = useRef(null);
-
-  useEffect(
-    () => () => {
-      if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-    },
-    [],
-  );
-
-  const addTodo = (text, priority, dueDate) => {
-    const newTodo = {
-      id: Date.now(),
-      text,
-      completed: false,
-      priority,
-      dueDate,
-    };
-
-    setTodos((prevTodos) => [...prevTodos, newTodo]);
-  };
-
-  const completeTodo = (id) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, completed: true } : todo,
-      ),
-    );
-  };
-
-  const deleteTodo = (id) => {
-    const taskToDelete = todos.find((todo) => todo.id === id);
-    if (!taskToDelete) return;
-
-    setDeletedTodo({ task: taskToDelete, index: todos.indexOf(taskToDelete) });
-    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-    undoTimeoutRef.current = setTimeout(() => {
-      setDeletedTodo(null);
-      undoTimeoutRef.current = null;
-    }, 5000);
-
-    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
-  };
-
-  const undoDelete = () => {
-    if (!deletedTodo) return;
-
-    if (undoTimeoutRef.current) clearTimeout(undoTimeoutRef.current);
-    setTodos((prevTodos) => {
-      if (prevTodos.some((todo) => todo.id === deletedTodo.task.id)) {
-        return prevTodos;
-      }
-
-      const restoredTodos = [...prevTodos];
-      restoredTodos.splice(
-        Math.min(deletedTodo.index, restoredTodos.length),
-        0,
-        deletedTodo.task,
-      );
-      return restoredTodos;
-    });
-    setDeletedTodo(null);
-    undoTimeoutRef.current = null;
-  };
-
-  const saveEdit = (id, changes) => {
-    setTodos((prevTodos) =>
-      prevTodos.map((todo) =>
-        todo.id === id ? { ...todo, ...changes } : todo,
-      ),
-    );
-  };
+  const {
+    todos,
+    deletedTodo,
+    addTodo,
+    completeTodo,
+    deleteTodo,
+    undoDelete,
+    saveEdit,
+  } = useTodos();
 
   const totalCount = todos.length;
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const completedCount = todos.filter((todo) => todo.completed).length;
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-900">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-50 via-slate-50 to-indigo-100 text-slate-800">
       <Header />
 
-      <main className="flex-grow flex items-center justify-center p-4">
-        <div className="w-full max-w-xl bg-slate-800 border border-slate-700 shadow-2xl rounded-2xl p-6 sm:p-8">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-white">TaskFlow</h1>
+      <main className="flex-grow px-4 py-10 sm:py-14">
+        <div className="mx-auto w-full max-w-3xl">
+          <section className="mb-7 rounded-3xl bg-gradient-to-r from-violet-600 to-indigo-600 p-7 text-white shadow-xl shadow-violet-200 sm:p-9">
+            <p className="mb-2 text-sm font-semibold uppercase tracking-[0.2em] text-violet-100">
+              Your day, organized
+            </p>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Make space for what matters.
+            </h1>
+            <p className="mt-2 max-w-lg text-sm leading-6 text-violet-100 sm:text-base">
+              Keep your tasks clear, set priorities, and take things one step at a time.
+            </p>
 
-            <div className="flex flex-wrap gap-3 mt-3 text-sm">
-              <span className="text-slate-300">Total: {totalCount}</span>
-              <span className="text-blue-400">Active: {activeCount}</span>
-              <span className="text-green-400">
-                Completed: {completedCount}
-              </span>
+            <div className="mt-7 grid grid-cols-3 gap-3">
+              <div className="rounded-2xl bg-white/15 p-3 backdrop-blur-sm sm:p-4">
+                <p className="text-2xl font-bold">{totalCount}</p>
+                <p className="mt-1 text-xs text-violet-100 sm:text-sm">Total tasks</p>
+              </div>
+              <div className="rounded-2xl bg-white/15 p-3 backdrop-blur-sm sm:p-4">
+                <p className="text-2xl font-bold">{activeCount}</p>
+                <p className="mt-1 text-xs text-violet-100 sm:text-sm">In progress</p>
+              </div>
+              <div className="rounded-2xl bg-white/15 p-3 backdrop-blur-sm sm:p-4">
+                <p className="text-2xl font-bold">{completedCount}</p>
+                <p className="mt-1 text-xs text-violet-100 sm:text-sm">Completed</p>
+              </div>
             </div>
-          </div>
+          </section>
 
-          <TaskForm onAdd={addTodo} />
-          <TaskList
-            tasks={todos}
-            onComplete={completeTodo}
-            onDelete={deleteTodo}
-            onSaveEdit={saveEdit}
-          />
           {deletedTodo && (
             <div
               role="status"
-              className="mt-4 flex items-center justify-between rounded-xl bg-slate-900 px-4 py-3 text-sm text-white"
+              className="mb-5 flex items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-900 shadow-sm"
             >
-              <span>Deleted</span>
+              <span>Task deleted. You can still bring it back.</span>
               <button
                 type="button"
                 onClick={undoDelete}
-                className="font-semibold text-violet-400 hover:text-violet-300"
+                className="rounded-lg px-3 py-2 font-semibold text-emerald-800 transition hover:bg-emerald-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 Undo
               </button>
             </div>
           )}
+
+          <section className="rounded-3xl border border-white bg-white/90 p-5 shadow-xl shadow-slate-200/70 sm:p-8">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-slate-900">Your tasks</h2>
+              <p className="mt-1 text-sm text-slate-500">Add a task or pick up where you left off.</p>
+            </div>
+            <TaskForm onAdd={addTodo} />
+            <TaskList
+              tasks={todos}
+              onComplete={completeTodo}
+              onDelete={deleteTodo}
+              onSaveEdit={saveEdit}
+            />
+          </section>
         </div>
       </main>
 
@@ -158,33 +90,3 @@ function App() {
 }
 
 export default App;
-
-function isValidDate(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-
-  const [year, month, day] = value.split("-").map(Number);
-  const parsed = new Date(Date.UTC(year, month - 1, day));
-
-  return (
-    parsed.getUTCFullYear() === year &&
-    parsed.getUTCMonth() === month - 1 &&
-    parsed.getUTCDate() === day
-  );
-}
-
-function areValidTodos(value) {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (todo) =>
-        todo &&
-        (typeof todo.id === "string" || typeof todo.id === "number") &&
-        typeof todo.text === "string" &&
-        typeof todo.completed === "boolean" &&
-        (todo.dueDate === undefined ||
-          todo.dueDate === "" ||
-          (typeof todo.dueDate === "string" && isValidDate(todo.dueDate))) &&
-        ["Low", "Medium", "High"].includes(todo.priority),
-    )
-  );
-}
