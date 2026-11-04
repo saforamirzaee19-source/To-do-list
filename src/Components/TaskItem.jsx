@@ -18,6 +18,8 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
       : task.priority === DEFAULT_PRIORITY
         ? "text-yellow-400"
         : "text-green-400";
+  const isDueInFuture =
+    task.dueDate && task.dueDate > new Date().toLocaleDateString("en-CA");
 
   const startEdit = () => {
     setEditText(task.text);
@@ -179,7 +181,7 @@ function TaskItem({ task, onComplete, onDelete, onSaveEdit }) {
           <button
             type="button"
             onClick={() => onComplete(task.id)}
-            disabled={task.completed}
+            disabled={task.completed || isDueInFuture}
             className="rounded-xl bg-violet-600 px-3 py-2 text-sm font-semibold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none"
           >
             {task.completed ? "Done" : "Complete"}

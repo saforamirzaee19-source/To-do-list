@@ -2,17 +2,13 @@ import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import TaskForm from "./Components/TaskForm";
 import TaskList from "./Components/TaskList";
-import useTodos from "./Hooks/useTodos";
+import useTodos, { TodosProvider } from "./Hooks/useTodos";
 
-function App() {
+function AppContent() {
   const {
     todos,
     deletedTodo,
-    addTodo,
-    completeTodo,
-    deleteTodo,
     undoDelete,
-    saveEdit,
   } = useTodos();
 
   const totalCount = todos.length;
@@ -73,19 +69,22 @@ function App() {
               <h2 className="text-xl font-bold text-slate-900">Your tasks</h2>
               <p className="mt-1 text-sm text-slate-500">Add a task or pick up where you left off.</p>
             </div>
-            <TaskForm onAdd={addTodo} />
-            <TaskList
-              tasks={todos}
-              onComplete={completeTodo}
-              onDelete={deleteTodo}
-              onSaveEdit={saveEdit}
-            />
+            <TaskForm />
+            <TaskList />
           </section>
         </div>
       </main>
 
       <Footer />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <TodosProvider>
+      <AppContent />
+    </TodosProvider>
   );
 }
 

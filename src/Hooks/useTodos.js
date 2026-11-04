@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { createContext, createElement, useContext, useEffect, useRef, useState } from "react";
 import {
   INITIAL_TODOS,
   TASK_STORAGE_KEY,
@@ -7,7 +7,9 @@ import {
 import { areValidTodos } from "../utils";
 import useLocalStorage from "./useLocalStorage";
 
-function useTodos() {
+const TodosContext = createContext(null);
+
+function useTodosState() {
   const [todos, setTodos] = useLocalStorage(
     TASK_STORAGE_KEY,
     INITIAL_TODOS,
@@ -103,6 +105,22 @@ function useTodos() {
     undoDelete,
     saveEdit,
   };
+}
+
+export function TodosProvider({ children }) {
+  const todosValue = useTodosState();
+
+  return createElement(TodosContext.Provider, { value: todosValue }, children);
+}
+
+function useTodos() {
+  const context = useContext(TodosContext);
+
+  if (!context) {
+    throw new Error("useTodos must be used inside a TodosProvider");
+  }
+
+  return context;
 }
 
 export default useTodos;

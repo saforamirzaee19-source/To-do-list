@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { DEFAULT_PRIORITY, PRIORITIES } from "../constants";
 import { isValidDate, isValidPriority } from "../utils";
+import useTodos from "../Hooks/useTodos";
 
-function TaskForm({ onAdd }) {
+function TaskForm() {
+  const { addTodo } = useTodos();
   const [input, setInput] = useState("");
   const [priority, setPriority] = useState(DEFAULT_PRIORITY);
   const [dueDate, setDueDate] = useState("");
@@ -25,7 +27,7 @@ function TaskForm({ onAdd }) {
     }
     if (!text) return;
 
-    onAdd(text, priority, dueDate);
+    addTodo(text, priority, dueDate);
     setInput("");
     setPriority(DEFAULT_PRIORITY);
     setDueDate("");
